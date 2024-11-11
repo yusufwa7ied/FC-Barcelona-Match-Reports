@@ -19,7 +19,7 @@ This project provides a web application for analyzing and visualizing FC Barcelo
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/fc-barcelona-dashboard.git
+    git clone https://github.com/yusufwa7ied/FC-Barcelona-Match-Reports.git
     cd fc-barcelona-dashboard
     ```
 
