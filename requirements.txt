@@ -1,7 +1,7 @@
 pandas
 numpy
 selenium
-pymongo
+pymongo==3.12.1
 beautifulsoup4
 streamlit
 mplsoccer
