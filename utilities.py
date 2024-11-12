@@ -17,7 +17,7 @@ def load_and_resize_logo(team_name, box_size=(150, 150)):
     if bbox:
         logo = logo.crop(bbox)
 
-    logo.thumbnail(box_size, Image.ANTIALIAS)
+    logo.thumbnail(box_size, Image.LANCZOS)
     
     # Convert image to Base64
     buffered = BytesIO()
