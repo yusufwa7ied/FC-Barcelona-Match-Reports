@@ -1,3 +1,4 @@
 # Ignore .env file
 .env
 .streamlit/secrets.toml
+.streamlit/__pycache__
