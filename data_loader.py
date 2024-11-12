@@ -3,13 +3,16 @@ from pymongo import MongoClient
 import pandas as pd
 from dotenv import load_dotenv
 import os
+import streamlit as st
 
 
 # Load environment variables from .env file
 load_dotenv()
-
 def load_data_from_mongo():
-    MONGO_URI = os.getenv("MONGO_URI")
+    MONGO_URI = f"mongodb+srv://{os.getenv('DB_USERNAME', st.secrets['DB_USERNAME'])}:" \
+            f"{os.getenv('DB_PASSWORD', st.secrets['DB_PASSWORD'])}@" \
+            f"{os.getenv('DB_CLUSTER', st.secrets['DB_CLUSTER'])}.mongodb.net/" \
+            f"{os.getenv('DB_NAME', st.secrets['DB_NAME'])}?retryWrites=true&w=majority"
     client = MongoClient(MONGO_URI)
     db = client['fcb2425']
     matches_data = list(db.matches.find())

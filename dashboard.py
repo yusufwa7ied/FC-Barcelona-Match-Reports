@@ -5,6 +5,9 @@ from visualizations import plot_pass_network, create_shotmap, create_match_stats
 from utilities import load_and_resize_logo
 from datetime import datetime
 import matplotlib.pyplot as plt
+import os
+from pymongo import MongoClient
+
 
 
 
@@ -23,7 +26,16 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Initialize MongoDB connection
+@st.cache_resource
+def init_connection():
+    MONGO_URI = f"mongodb+srv://{os.getenv('DB_USERNAME', st.secrets['DB_USERNAME'])}:" \
+                f"{os.getenv('DB_PASSWORD', st.secrets['DB_PASSWORD'])}@" \
+                f"{os.getenv('DB_CLUSTER', st.secrets['DB_CLUSTER'])}.mongodb.net/" \
+                f"{os.getenv('DB_NAME', st.secrets['DB_NAME'])}?retryWrites=true&w=majority"
+    return MongoClient(MONGO_URI)
 
+client = init_connection()
 
 @st.cache_data
 def load_data():

@@ -12,7 +12,7 @@ import os
 load_dotenv()
 
 # Database configuration
-MONGO_URI = os.getenv("MONGO_URI")
+MONGO_URI = f"mongodb+srv://{os.getenv('DB_USERNAME')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_CLUSTER')}.mongodb.net/{os.getenv('DB_NAME')}?retryWrites=true&w=majority"
 client = MongoClient(MONGO_URI)
 DB_NAME = "fcb2425"
 INTERVAL_SECONDS = 2  # Delay between requests
