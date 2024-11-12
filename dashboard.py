@@ -26,16 +26,13 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Initialize MongoDB connection
 @st.cache_resource
 def init_connection():
-    MONGO_URI = f"mongodb+srv://{os.getenv('DB_USERNAME', st.secrets['DB_USERNAME'])}:" \
-                f"{os.getenv('DB_PASSWORD', st.secrets['DB_PASSWORD'])}@" \
-                f"{os.getenv('DB_CLUSTER', st.secrets['DB_CLUSTER'])}.mongodb.net/" \
-                f"{os.getenv('DB_NAME', st.secrets['DB_NAME'])}?retryWrites=true&w=majority"
-    return MongoClient(MONGO_URI)
-
-client = init_connection()
+    MONGO_URI = f"mongodb+srv://{os.getenv('DB_USERNAME', st.secrets['mongo']['DB_USERNAME'])}:" \
+                f"{os.getenv('DB_PASSWORD', st.secrets['mongo']['DB_PASSWORD'])}@" \
+                f"{os.getenv('DB_CLUSTER', st.secrets['mongo']['DB_CLUSTER'])}.mongodb.net/" \
+                f"{os.getenv('DB_NAME', st.secrets['mongo']['DB_NAME'])}?retryWrites=true&w=majority"
+    return pymongo.MongoClient(MONGO_URI)
 
 @st.cache_data
 def load_data():
