@@ -25,7 +25,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
+print("Secrets loaded:", st.secrets)
 @st.cache_resource
 def init_connection():
     MONGO_URI = f"mongodb+srv://{os.getenv('DB_USERNAME', st.secrets['mongo']['DB_USERNAME'])}:" \
