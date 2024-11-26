@@ -171,13 +171,8 @@ def main():
     # Insert only new data
     if all_matches:
         db.matches.insert_many(all_matches)
-    # Insert or update teams
-    for team in all_teams:
-        db.teams.update_one(
-            {"_id": team["_id"]},  # Match by team ID
-            {"$set": team},        # Update the document
-            upsert=True            # Insert if it doesn't exist
-        )
+    if all_teams:
+        db.teams.insert_many(all_teams)
     if all_players:
         db.players.insert_many(all_players)
     if all_events:
