@@ -72,7 +72,8 @@ st.markdown("<h1 style='text-align: center; color: white;'>FC Barcelona Match Re
 
 # Format date to show only the date part (without time)
 #match_date = datetime.strptime(str(match_data['date']).split()[0], "%Y-%m-%d").strftime("%d-%m-%Y")
-match_date = datetime.strptime(match_data['date'], "%Y-%m-%dT%H:%M:%S").date()
+#match_date = datetime.strptime(match_data['date'], "%Y-%m-%dT%H:%M:%S").date()
+match_date = match_data['date'].date()
 
 # Row 1: Display match information in the first row
 col1, col2, col3 = st.columns([2, 2, 2])
