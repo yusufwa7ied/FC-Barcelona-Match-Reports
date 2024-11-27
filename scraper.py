@@ -36,8 +36,11 @@ def sum_stats(stats_dict, exclude_keys=None):
     exclude_keys = exclude_keys or []
     return sum(value for key, value in stats_dict.items() if key not in exclude_keys)
 
+
 def get_existing_match_ids(db):
-    return set(item['_id'] for item in db.matches.find({}, {'_id': 1}))
+    match_ids = set(item['_id'] for item in db.matches.find({}, {'_id': 1}))
+    print("Existing match IDs in the database:", match_ids)
+    return match_ids
 
 def scrape_match_data(driver, match_id, url, competition):
     driver.get(url)
@@ -108,7 +111,6 @@ def scrape_match_data(driver, match_id, url, competition):
     events_data = []
     for event in matchdict['events']:
         event_info = {
-            '_id': f"{match_id}_{event['eventId']}_{event['minute']}_{event.get('playerId', '')}",
             'competition': competition,
             'match_id': match_id,
             'event_type_id': event.get('eventId'),
@@ -167,7 +169,8 @@ def main():
                 all_events.extend(events_data)
             
             time.sleep(INTERVAL_SECONDS)  # Pause to respect site requests
-    
+            
+            
     # Insert only new data
     if all_matches:
         db.matches.insert_many(all_matches)
@@ -182,6 +185,7 @@ def main():
         db.players.insert_many(all_players)
     if all_events:
         db.events.insert_many(all_events)
+
     
     print("New data successfully inserted.")
     client.close()
