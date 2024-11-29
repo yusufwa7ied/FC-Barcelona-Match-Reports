@@ -6,7 +6,9 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from datetime import datetime
 import os
+from utilities import preprocess_events, preprocess_data, convert_to_json
 
 # Load environment variables from .env file
 load_dotenv()
@@ -55,7 +57,7 @@ def scrape_match_data(driver, match_id, url, competition):
     match_info = {
         '_id': match_id,
         'competition': competition,
-        'date': matchdict.get('startTime'),
+        'date': datetime.strptime(matchdict.get('startTime'), "%Y-%m-%dT%H:%M:%S"),
         'home_team_id': matchdict['home']['teamId'],
         'away_team_id': matchdict['away']['teamId'],
         'home_team_name': matchdict['home']['name'],
@@ -112,22 +114,18 @@ def scrape_match_data(driver, match_id, url, competition):
     for event in matchdict['events']:
         event_info = {
             'competition': competition,
-            'match_id': match_id,
-            'event_type_id': event.get('eventId'),
-            'minute': event.get('minute'),
-            'second': event.get('second', 0),
-            'team_id': event.get('teamId'),
-            'player_id': event.get('playerId'),
-            'type': event.get('type', {}).get('displayName'),
-            'outcomeType': event.get('outcomeType', {}).get('displayName'),
-            'x': event.get('x'),
-            'y': event.get('y'),
-            'end_x': event.get('endX', 0),
-            'end_y': event.get('endY', 0)
+            'match_id': match_id
         }
+        for key, value in event.items():
+            event_info[key] = value
         events_data.append(event_info)
+    
+    
+    matches_df, teams_df, players_df, events_df = preprocess_data(match_info, teams_data, players_data, events_data)
+    return matches_df, teams_df, players_df, events_df
 
-    return match_info, teams_data, players_data, events_data
+
+
 
 def main():
     # MongoDB setup
@@ -160,33 +158,46 @@ def main():
             
             # Scrape match data
             print(f"Scraping new match: {match_id} ({competition})")
-            match_info, teams_data, players_data, events_data = scrape_match_data(driver, match_id, url, competition)
-            
-            if match_info:
-                all_matches.append(match_info)
-                all_teams.extend(teams_data)
-                all_players.extend(players_data)
-                all_events.extend(events_data)
+            matches_df, teams_df, players_df, events_df = scrape_match_data(driver, match_id, url, competition)
+
+            # Add scraped data to respective lists
+            if not matches_df.empty:
+                all_matches.extend(matches_df.to_dict(orient='records'))
+            if not teams_df.empty:
+                all_teams.extend(teams_df.to_dict(orient='records'))
+            if not players_df.empty:
+                all_players.extend(players_df.to_dict(orient='records'))
+            if not events_df.empty:
+                all_events.extend(events_df.to_dict(orient='records'))
             
             time.sleep(INTERVAL_SECONDS)  # Pause to respect site requests
             
             
-    # Insert only new data
-    if all_matches:
-        db.matches.insert_many(all_matches)
-    # Insert or update teams
-    for team in all_teams:
-        db.teams.update_one(
-            {"_id": team["_id"]},  # Match by team ID
-            {"$set": team},        # Update the document
-            upsert=True            # Insert if it doesn't exist
-        )
-    if all_players:
-        db.players.insert_many(all_players)
-    if all_events:
-        db.events.insert_many(all_events)
+    # Preprocess data
+    if all_matches or all_teams or all_players or all_events:
+        # Preprocess the collected data
+        matches_df, teams_df, players_df, events_df = preprocess_data(all_matches, all_teams, all_players, all_events)
+        
+        # Convert to JSON-compatible format for MongoDB
+        matches_data, teams_data, players_data, events_data = convert_to_json(matches_df, teams_df, players_df, events_df)
+        
+        # Insert preprocessed data into MongoDB
+        if matches_data:
+            db.matches.insert_many(matches_data)
+        if teams_data:
+            for team in teams_data:
+                db.teams.update_one(
+                    {"_id": team["_id"]},  # Match by team ID
+                    {"$set": team},        # Update the document
+                    upsert=True            # Insert if it doesn't exist
+                )
+            #db.teams.insert_many(teams_data)
+        if players_data:
+            db.players.insert_many(players_data)
+        if events_data:
+            db.events.insert_many(events_data)
 
-    
+
     print("New data successfully inserted.")
     client.close()
     driver.quit()
