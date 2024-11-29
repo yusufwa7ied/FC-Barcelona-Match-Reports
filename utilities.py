@@ -144,16 +144,16 @@ def preprocess_events(all_events):
     )
     
     # Final adjustments
-    if 'passer_x' in events_df.columns:
-        events_df.rename(columns={'passer_x': 'passer'}, inplace=True)
-        events_df['passer'] = events_df['passer'].astype(pd.Int64Dtype())
-        events_df['recipient'] = events_df['recipient'].astype(pd.Int64Dtype())
-        events_df.rename(columns={
-        'id': 'event_id', 'eventId': 'event_type_id', 'teamId': 'team_id', 'playerId': 'player_id',
-        'outcomeType': 'type_outcome', 'endX': 'end_x', 'endY': 'end_y',
-        'goalMouthZ': 'goal_mouth_z', 'goalMouthY': 'goal_mouth_y', 'isTouch': 'is_touch',
-        'isShot': 'is_shot', 'isGoal': 'is_goal', 'cardType': 'card_type', 'isOwnGoal': 'is_own_goal'
-    }, inplace=True)
+
+
+    events_df['passer'] = events_df['passer'].astype(pd.Int64Dtype())
+    events_df['recipient'] = events_df['recipient'].astype(pd.Int64Dtype())
+    events_df.rename(columns={
+    'id': 'event_id', 'eventId': 'event_type_id', 'teamId': 'team_id', 'playerId': 'player_id',
+    'outcomeType': 'type_outcome', 'endX': 'end_x', 'endY': 'end_y',
+    'goalMouthZ': 'goal_mouth_z', 'goalMouthY': 'goal_mouth_y', 'isTouch': 'is_touch',
+    'isShot': 'is_shot', 'isGoal': 'is_goal', 'cardType': 'card_type', 'isOwnGoal': 'is_own_goal'
+        }, inplace=True)
     return events_df
 
 # Main processing function
